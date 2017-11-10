@@ -32,7 +32,6 @@ func plotsgr(points []topo.Point) {
 	if err := p.Save(4*vg.Inch, 4*vg.Inch, "points.png"); err != nil {
 		panic(err)
 	}
-	fmt.Println("err yo:",err)
 }
 
 // randomPoints returns some random x, y points.
