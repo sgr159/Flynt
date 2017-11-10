@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	fmt.Println("Enter number of drones yo: ")
+	fmt.Println("Enter number of drones: ")
 	var numOfDrones uint64
 	fmt.Scan(&numOfDrones)
 	
@@ -23,6 +23,7 @@ func main() {
 	for _,point := range positions {
 		fmt.Printf("{%.2f, %.2f} ",point.X,point.Y)
 	}
-	fmt.Println("tets yo")
+	fmt.Printf("\n")
 	plotsgr(positions)
+	fmt.Println("Check out points.png yo!")
 }
