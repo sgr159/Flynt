@@ -2,12 +2,25 @@ package main
 
 import (
 	"fmt"
-	"topo"
-//	"drone"
+//	"topo"
+	"drone"
 )
 
-func main() {
+var IDVAR uint64 = 1
 
+func main() {
+	
+	var field = GetNewField(50, 50)
+	fmt.Println("Enter number of drones: ")
+	var numOfDrones uint64
+	fmt.Scan(&numOfDrones)
+	for i:=0;i<5;i++ {
+		field.AddDrone(drone.GetDrone(IDVAR,100,3))
+		IDVAR++
+	}
+	field.ArrangeDrones()
+	field.PlotField()
+	/*
 	fmt.Println("Enter number of drones: ")
 	var numOfDrones uint64
 	fmt.Scan(&numOfDrones)
@@ -25,6 +38,8 @@ func main() {
 	}
 	fmt.Printf("\n")
 	userPos := []topo.Point{topo.Point{3,4},topo.Point{-1,4},topo.Point{-1,-2}}
-	plotsgr(positions,userPos)
+	plotMap(positions,userPos)
+	
+	*/
 	fmt.Println("Check out points.png yo!")
 }

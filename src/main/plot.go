@@ -9,7 +9,7 @@ import (
 	"topo"
 )
 
-func plotsgr(points,users []topo.Point) {
+func plotMap(points,users []topo.Point) {
 	rand.Seed(int64(0))
 
 	p, err := plot.New()
@@ -48,7 +48,7 @@ func randomPoints(n int) plotter.XYs {
 	return pts
 }
 
-// randomPoints returns some random x, y points.
+
 func ptsFromPoints(points []topo.Point) plotter.XYs {
 	pts := make(plotter.XYs, len(points))
 	for i := range pts {
