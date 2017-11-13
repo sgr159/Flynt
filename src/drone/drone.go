@@ -36,7 +36,7 @@ func (dg *DroneGroup) AddDrone(drone *Drone) {
 }
 
 type Drone struct {
-	name string
+	id uint64
 	currentPosition topo.Point
 	destinationPosition topo.Point
 	capacity uint64
@@ -47,8 +47,8 @@ type Drone struct {
 	parent *Drone
 }
 
-func GetDrone(name string, currentPosition topo.Point, capacity uint64, signalRange uint64) *Drone {
-	return &Drone {name,
+func GetDrone(id uint64, currentPosition topo.Point, capacity uint64, signalRange uint64) *Drone {
+	return &Drone {id,
 		currentPosition,
 		currentPosition,
 		capacity,

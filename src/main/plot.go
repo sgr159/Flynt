@@ -9,7 +9,7 @@ import (
 	"topo"
 )
 
-func plotsgr(points []topo.Point) {
+func plotsgr(points,users []topo.Point) {
 	rand.Seed(int64(0))
 
 	p, err := plot.New()
@@ -22,7 +22,8 @@ func plotsgr(points []topo.Point) {
 	p.Y.Label.Text = "Y"
 
 	err = plotutil.AddScatters(p,
-		"Drones", ptsFromPoints(points))
+		"Drones", ptsFromPoints(points),
+		"Users",ptsFromPoints(users))
 	if err != nil {
 		panic(err)
 	}

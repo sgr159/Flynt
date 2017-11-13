@@ -24,6 +24,7 @@ func main() {
 		fmt.Printf("{%.2f, %.2f} ",point.X,point.Y)
 	}
 	fmt.Printf("\n")
-	plotsgr(positions)
+	userPos := []topo.Point{topo.Point{3,4},topo.Point{-1,4},topo.Point{-1,-2}}
+	plotsgr(positions,userPos)
 	fmt.Println("Check out points.png yo!")
 }
