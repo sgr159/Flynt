@@ -74,3 +74,7 @@ func (f *Field)ArrangeDrones() {
 		f.droneGroups[i].GetDrones()[0].MoveTo(equiPoints[i-1])
 	}
 }
+
+func (f *Field)GetClosestDroneGroup (p topo.Point) *drone.DroneGroup {
+	return nil
+}

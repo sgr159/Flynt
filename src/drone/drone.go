@@ -28,14 +28,21 @@ var YMin float64 = 0
 
 type DroneGroup struct {
 	groupId uint64
+	centerOfGroup topo.Point
 	drones []*Drone
 }
 
 func GetDroneGroup(groupId uint64) *DroneGroup {
-	return &DroneGroup{groupId,nil}
+	return &DroneGroup{groupId,topo.Point{0,0},nil}
 }
 
 func (dg *DroneGroup) AddDrone(drone *Drone) {
+	sumX := dg.centerOfGroup.X*float64(len(dg.drones)) +drone.GetCurrentPosition().X
+	sumY := dg.centerOfGroup.Y*float64(len(dg.drones)) +drone.GetCurrentPosition().Y
+	
+	dg.centerOfGroup.X = sumX/float64(len(dg.drones)+1)
+	dg.centerOfGroup.Y = sumY/float64(len(dg.drones)+1)
+	
 	dg.drones = append(dg.drones,drone)
 	drone.groupId = dg.groupId
 }
@@ -76,7 +83,8 @@ func (d *Drone) MoveTo(p topo.Point) bool {
 	if !isInLimit(p) {
 		return false
 	}
-	d.currentPosition = p
+	d.currentPosition.X = p.X
+	d.currentPosition.Y = p.Y
 	return true
 }
 
