@@ -9,7 +9,6 @@ import (
 var IDVAR uint64 = 1
 
 func main() {
-	
 	var field = GetNewField(50, 50)
 	fmt.Println("Enter number of drones: ")
 	var numOfDrones uint64
