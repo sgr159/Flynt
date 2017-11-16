@@ -16,7 +16,7 @@ const (
 type Status uint8
 
 const (
-	Uninitialized Status = iota
+	Free Status = iota
 	Moving
 	Serving
 )
@@ -44,11 +44,27 @@ func (dg *DroneGroup) AddDrone(drone *Drone) {
 	dg.centerOfGroup.Y = sumY/float64(len(dg.drones)+1)
 	
 	dg.drones = append(dg.drones,drone)
-	drone.groupId = dg.groupId
+	drone.droneGroup = dg
+}
+
+func (dg *DroneGroup) GetId() uint64 {
+	return dg.groupId
 }
 
 func (dg *DroneGroup) GetDrones() []*Drone {
 	return dg.drones
+}
+
+func (dg *DroneGroup) GetCenterOfGroup() topo.Point {
+	return dg.centerOfGroup
+}
+
+func (dg *DroneGroup) GetDronePoints() []topo.Point {
+	var dronePoints []topo.Point
+	for _,d := range dg.drones {
+		dronePoints = append(dronePoints,d.GetCurrentPosition())
+	}
+	return dronePoints
 }
 
 type Drone struct {
@@ -57,7 +73,7 @@ type Drone struct {
 	destinationPosition topo.Point
 	capacity uint64
 	signalRange uint64
-	groupId uint64
+	droneGroup *DroneGroup
 	role Role
 	status Status
 	parent *Drone
@@ -69,9 +85,9 @@ func GetDrone(id uint64, capacity uint64, signalRange uint64) *Drone {
 		topo.Point{0,0},
 		capacity,
 		signalRange,
-		0,
+		nil,
 		Unknown,
-		Uninitialized,
+		Free,
 		nil}
 }
 
@@ -79,10 +95,24 @@ func (d *Drone) GetCurrentPosition() topo.Point {
 	return d.currentPosition
 }
 
+func (d *Drone) GetStatus() Status {
+	return d.status
+}
+
+func (d *Drone) GetId() uint64 {
+	return d.id
+}
+
+func (d *Drone) Serve () {
+	d.status = Serving
+}
+
 func (d *Drone) MoveTo(p topo.Point) bool {
+	/*
 	if !isInLimit(p) {
 		return false
 	}
+	*/
 	d.currentPosition.X = p.X
 	d.currentPosition.Y = p.Y
 	return true

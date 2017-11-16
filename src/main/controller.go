@@ -2,43 +2,48 @@ package main
 
 import (
 	"fmt"
-//	"topo"
+	"topo"
 	"drone"
+	"user"
 )
 
-var IDVAR uint64 = 1
+var IDVAR uint64 = 0
 
+func getId() uint64 {
+	IDVAR++
+	return IDVAR
+}
 func main() {
-	var field = GetNewField(50, 50)
-	fmt.Println("Enter number of drones: ")
-	var numOfDrones uint64
-	fmt.Scan(&numOfDrones)
-	for i:=0;i<5;i++ {
-		field.AddDrone(drone.GetDrone(IDVAR,100,3))
-		IDVAR++
+	var field = GetNewField(200, 200)
+	userPoints := []topo.Point{
+		topo.Point{1,1},
+		topo.Point{12,1},
+		topo.Point{-4,-9},
+		topo.Point{-7,-5},
+//		topo.Point{-43,65},
 	}
+	
+	for _,p := range userPoints {
+		field.AddUser(user.GetNewUser(getId(), p))
+	}
+	
+	fmt.Println("Enter number of drones: ")
+	var numOfDrones int
+	fmt.Scan(&numOfDrones)
+	for i:=0;i<numOfDrones;i++ {
+		field.AddDrone(drone.GetDrone(getId(),100,3))
+	}
+	clustpos := field.ClusterUsers()
 	field.ArrangeDrones()
-	field.PlotField()
-	/*
-	fmt.Println("Enter number of drones: ")
-	var numOfDrones uint64
-	fmt.Scan(&numOfDrones)
-	
-	fmt.Println("Enter distance from center: ")
-	var distanceFromCenter float64
-	fmt.Scan(&distanceFromCenter)
-	fmt.Println("Distance from center:",distanceFromCenter)
-	var positions []topo.Point
-	positions = append(positions,topo.Point{0,0})
-	positions = append(positions,topo.GetEquiGeoCoordinates(uint64(numOfDrones-1), distanceFromCenter)...)
-	fmt.Println("Initial positions of drones:")
-	for _,point := range positions {
-		fmt.Printf("{%.2f, %.2f} ",point.X,point.Y)
+	_,userPointsconf := field.GetUsersAndPositions()
+	_,dronePoints := field.GetDronesAndDronePositions()
+	fmt.Println("User Points:",userPointsconf)
+	for _,ug := range field.GetUserGroups() {
+		fmt.Println("center",ug.GetCenterofGroup(),"points",ug.GetUserPoints())
 	}
-	fmt.Printf("\n")
-	userPos := []topo.Point{topo.Point{3,4},topo.Point{-1,4},topo.Point{-1,-2}}
-	plotMap(positions,userPos)
-	
-	*/
+	fmt.Println("CLUSTER COMP:",clustpos)
+	fmt.Println("drone Points:",dronePoints)
+	field.PlotField()
+
 	fmt.Println("Check out points.png yo!")
 }
