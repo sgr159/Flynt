@@ -91,10 +91,10 @@ func (ug *UserGroup) RemoveUser(u *User) {
 		ug.centerOfGroup.Y = sumY / float64(len(ug.users)-1)
 
 		ug.users[index] = ug.users[len(ug.users)-1]
+		ug.users[len(ug.users)-1] = nil //prevent memleak
 		ug.users = ug.users[:len(ug.users)-1]
 	}
 	u.group = nil
-
 }
 
 func (ug *UserGroup) GetUsers() []*User {

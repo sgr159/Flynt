@@ -2,6 +2,7 @@ package drone
 
 import (
 	"topo"
+	"fmt"
 )
 
 type Role uint8
@@ -45,6 +46,40 @@ func (dg *DroneGroup) AddDrone(drone *Drone) {
 	
 	dg.drones = append(dg.drones,drone)
 	drone.droneGroup = dg
+}
+
+
+func (dg *DroneGroup) RemoveDrone(d *Drone) {
+	if len(dg.drones) == 1 {
+		dg.centerOfGroup.X, dg.centerOfGroup.Y = 0, 0
+		dg.drones = dg.drones[:0]
+	} else {
+		var index int
+		found := false
+
+		for i, mem := range dg.drones {
+			if mem == d {
+				index = i
+				found = true
+				break
+			}
+		}
+		if !found {
+			fmt.Println("user", d.id, "you,re trying to delete is not found in dronegroup", dg.groupId)
+			return
+		}
+
+		sumX := dg.centerOfGroup.X*float64(len(dg.drones)) - d.GetCurrentPosition().X
+		sumY := dg.centerOfGroup.Y*float64(len(dg.drones)) - d.GetCurrentPosition().Y
+
+		dg.centerOfGroup.X = sumX / float64(len(dg.drones)-1)
+		dg.centerOfGroup.Y = sumY / float64(len(dg.drones)-1)
+
+		dg.drones[index] = dg.drones[len(dg.drones)-1]
+		dg.drones[len(dg.drones)-1] = nil //prevent memleak
+		dg.drones = dg.drones[:len(dg.drones)-1]
+	}
+	d.droneGroup = nil
 }
 
 func (dg *DroneGroup) GetId() uint64 {
@@ -99,12 +134,20 @@ func (d *Drone) GetStatus() Status {
 	return d.status
 }
 
+func (d *Drone) GetGroup() *DroneGroup {
+	return d.droneGroup
+}
+
 func (d *Drone) GetId() uint64 {
 	return d.id
 }
 
 func (d *Drone) Serve () {
 	d.status = Serving
+}
+
+func (d *Drone) SetRole (r Role) {
+	d.role = r
 }
 
 func (d *Drone) MoveTo(p topo.Point) bool {
