@@ -3,6 +3,11 @@ package drone
 import (
 	"topo"
 	"fmt"
+	"user"
+)
+
+const (
+	DroneRange float64 = 20
 )
 
 type Role uint8
@@ -112,6 +117,7 @@ type Drone struct {
 	role Role
 	status Status
 	parent *Drone
+	users []*user.User
 }
 
 func GetDrone(id uint64, capacity uint64, signalRange uint64) *Drone {
@@ -123,6 +129,7 @@ func GetDrone(id uint64, capacity uint64, signalRange uint64) *Drone {
 		nil,
 		Unknown,
 		Free,
+		nil,
 		nil}
 }
 
@@ -142,12 +149,25 @@ func (d *Drone) GetId() uint64 {
 	return d.id
 }
 
-func (d *Drone) Serve () {
+func (d *Drone) GetUsers() []*user.User {
+	return d.users
+}
+
+func (d *Drone) Serve (users []*user.User) {
 	d.status = Serving
+	d.users = append(d.users,users...)
 }
 
 func (d *Drone) SetRole (r Role) {
 	d.role = r
+}
+
+func (d *Drone) SetParent (p *Drone) {
+	d.parent = p
+}
+
+func (d *Drone) GetParent() *Drone {
+	return d.parent
 }
 
 func (d *Drone) MoveTo(p topo.Point) bool {

@@ -25,3 +25,7 @@ func (p Point) IsEqual(p2 Point) bool {
 	}
 	return false
 }
+
+func (p Point) GetMidPointFrom(p2 Point) Point {
+	return Point{(p.X+p2.X)/2.0,(p.Y+p2.Y)/2.0}
+}

@@ -5,6 +5,7 @@ import (
 	"topo"
 	"drone"
 	"user"
+	"math/rand"
 )
 
 var IDVAR uint64 = 0
@@ -15,16 +16,12 @@ func getId() uint64 {
 }
 func main() {
 	var field = GetNewField(200, 200)
-	userPoints := []topo.Point{
-		topo.Point{1,1},
-		topo.Point{12,1},
-		topo.Point{-4,-9},
-		topo.Point{-7,-5},
-//		topo.Point{-43,65},
-	}
+	fmt.Println("Enter number of users: ")
+	var numOfUsers int
+	fmt.Scan(&numOfUsers)
 	
-	for _,p := range userPoints {
-		field.AddUser(user.GetNewUser(getId(), p))
+	for i:=0;i<numOfUsers;i++ {
+		field.AddUser(user.GetNewUser(getId(), topo.Point{(rand.Float64() -0.5)*200,(rand.Float64() -0.5)*200}))
 	}
 	
 	fmt.Println("Enter number of drones: ")
@@ -44,6 +41,7 @@ func main() {
 	fmt.Println("CLUSTER COMP:",clustpos)
 	fmt.Println("drone Points:",dronePoints)
 	field.PlotField()
+	field.PlotField2()
 
 	fmt.Println("Check out points.png yo!")
 }

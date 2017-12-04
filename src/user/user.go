@@ -1,7 +1,6 @@
 package user
 
 import (
-	"drone"
 	"fmt"
 	"topo"
 )
@@ -9,12 +8,11 @@ import (
 type User struct {
 	id       uint64
 	position topo.Point
-	drone    *drone.Drone
 	group    *UserGroup
 }
 
 func GetNewUser(id uint64, position topo.Point) *User {
-	return &User{id, position, nil, nil}
+	return &User{id, position, nil}
 }
 
 func (u *User) GetCurrentPosition() topo.Point {
@@ -107,4 +105,59 @@ func (ug *UserGroup) GetUserPoints() []topo.Point {
 		userPoints = append(userPoints, u.GetCurrentPosition())
 	}
 	return userPoints
+}
+
+
+func (ug *UserGroup) GetMostDistantUsers() (*User,*User,float64) {
+	var maxXu,maxYu,minXu,minYu *User
+	var maxX,maxY,minX,minY,maxDist float64 = 0,0,-1,-1,0
+	for _,u := range ug.GetUsers() {
+		if u.GetCurrentPosition().X > maxX {
+			maxX = u.GetCurrentPosition().X
+			maxXu = u
+		}
+		if u.GetCurrentPosition().X < minX || minX == -1 {
+			minX = u.GetCurrentPosition().X
+			minXu = u
+		}
+		if u.GetCurrentPosition().Y > maxY {
+			maxY = u.GetCurrentPosition().Y
+			maxYu = u
+		}
+		if u.GetCurrentPosition().Y < minY || minY == -1 {
+			minY = u.GetCurrentPosition().Y
+			minYu = u
+		}
+	}
+	var borderUsers []*User
+	var maxdistu1,maxdistu2 *User
+	borderUsers = append(borderUsers,maxXu,maxYu,minXu,minYu)
+	for _,u1 := range borderUsers {
+		for _,u2 := range borderUsers {
+			if u1 == u2 {
+				continue;
+			}
+			dist := u1.GetCurrentPosition().DistanceFrom(u2.GetCurrentPosition())
+			if maxDist < dist {
+				maxDist = dist
+				maxdistu1 = u1
+				maxdistu2 = u2
+			}
+		}
+	}
+	return maxdistu1,maxdistu2,maxDist
+}
+
+func (ug *UserGroup) GetMostDistantUserFrom(p topo.Point) (*User,float64) {
+	var maxDist float64 = -1
+	var maxDistUser *User
+	
+	for _,u := range ug.GetUsers() {
+		if maxDist < u.GetCurrentPosition().DistanceFrom(p) {
+			maxDist = u.GetCurrentPosition().DistanceFrom(p)
+			maxDistUser = u
+		}
+	}
+	
+	return maxDistUser,maxDist
 }
