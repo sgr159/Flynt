@@ -35,13 +35,11 @@ func main() {
 	_,userPointsconf := field.GetUsersAndPositions()
 	_,dronePoints := field.GetDronesAndDronePositions()
 	fmt.Println("User Points:",userPointsconf)
-	for _,ug := range field.GetUserGroups() {
-		fmt.Println("center",ug.GetCenterofGroup(),"points",ug.GetUserPoints())
-	}
 	fmt.Println("CLUSTER COMP:",clustpos)
 	fmt.Println("drone Points:",dronePoints)
 	field.PlotField()
 	field.PlotField2()
 
 	fmt.Println("Check out points.png yo!")
+	fmt.Println("Drones in reserve:",len(field.freeDrones))
 }

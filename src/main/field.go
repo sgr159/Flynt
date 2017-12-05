@@ -237,20 +237,38 @@ func (f *Field) GetClosestServingDrone(p topo.Point) (float64, *drone.Drone){
 	var minDist float64 = -1
 	var minDistDrone *drone.Drone
 	for _,dg := range f.droneGroups {
+		fmt.Println("hello1",len(dg.GetDrones()))
 		for _,d := range dg.GetDrones() {
+			
 			if d.GetStatus() != drone.Serving {
 				continue
 			}
+			
 			if minDist == -1 {
 				minDist = d.GetCurrentPosition().DistanceFrom(p)
 				minDistDrone = d
-			} else if d.GetCurrentPosition().DistanceFrom(p) < minDist {
+				continue
+			}
+			dist := d.GetCurrentPosition().DistanceFrom(p)
+			fmt.Println("dist",dist)
+			if dist < minDist {
+				
 				minDist = d.GetCurrentPosition().DistanceFrom(p)
 				minDistDrone = d
 			}
 		}
 	}
 	return minDist, minDistDrone
+}
+
+func (f *Field) unfreeDrone (d *drone.Drone) {
+	for i,fd := range f.freeDrones {
+		if fd == d {
+			f.freeDrones[i] = f.freeDrones[len(f.freeDrones)-1]
+			f.freeDrones = f.freeDrones[:len(f.freeDrones)-1]
+			break;
+		}
+	}
 }
 
 func (f *Field) processUserGroup(ug *user.UserGroup) {
@@ -269,25 +287,47 @@ func (f *Field) processUserGroup(ug *user.UserGroup) {
 		return
 	}
 	
-	numOfConnectorNodes := int(math.Ceil(ug.GetCenterofGroup().DistanceFrom(topo.Point{0,0})/(2*drone.DroneRange)))
+	numOfConnectorNodes := int(math.Ceil(ug.GetCenterofGroup().DistanceFrom(topo.Point{0,0})/drone.DroneRange))
 
-	var prevD *drone.Drone = f.droneGroups[0].GetDrones()[0]
 	fmt.Println("num of connectors:",numOfConnectorNodes)
-	for i:=1;i<numOfConnectorNodes;i++ {
-		ratio := float64(i)/float64(numOfConnectorNodes)
-		p := topo.Point{ug.GetCenterofGroup().X*ratio, ug.GetCenterofGroup().Y*ratio}
-		d := f.GetClosestDrone(p)
-		d.MoveTo(p)
-		f.Serve(d,nil)
-		d.SetParent(prevD)
-		prevD = d
-	}
 	d := f.GetClosestDrone(ug.GetCenterofGroup())
 	d.MoveTo(ug.GetCenterofGroup())
 	f.Serve(d,ug.GetUsers())
-	d.SetParent(prevD)
+	droneGroup := d.GetGroup()
+	var droneToServe []*drone.Drone
+	droneToServe = append(droneToServe, d)
+	d.Reserve()
+	prevD := d
+	prevP := ug.GetCenterofGroup()
+	for i:=numOfConnectorNodes-1;i>0;i-- {
+		dist,d := f.GetClosestServingDrone(prevP)
+		fmt.Println("SGR DBG: dist",dist,"drone",*d)
+		if dist < drone.DroneRange {
+			prevD.SetParent(d)
+			goto serveall
+		}
+		ratio := float64(i)/float64(numOfConnectorNodes)
+		p := topo.Point{ug.GetCenterofGroup().X*ratio, ug.GetCenterofGroup().Y*ratio}
+		d = f.GetClosestDrone(p)
+		d.MoveTo(p)
+		droneToServe = append(droneToServe, d)
+		d.Reserve()
+		prevD.SetParent(d)
+		prevD = d
+		prevP = p
+	}
+	
+	prevD.SetParent(f.GetAnchor())
 	
 	fmt.Println("Moving drone: ", d.GetId(), "to cluster", ug.GetClusterNumber(), "drone pos", d.GetCurrentPosition())
 	//	numOfDrones := math.Ceil(maxDist/(drone.DroneRange*2))
+	serveall:
+	for _,d := range droneToServe {
+		d.SetStatus(drone.Serving)
+		f.unfreeDrone(d)
+		if d.GetGroup() == nil {
+			droneGroup.AddDrone(d)
+		}
+	}
 
 }

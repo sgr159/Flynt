@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	DroneRange float64 = 20
+	DroneRange float64 = 40
 )
 
 type Role uint8
@@ -25,6 +25,7 @@ const (
 	Free Status = iota
 	Moving
 	Serving
+	Reserved
 )
 
 var XMax float64 = 0
@@ -158,12 +159,20 @@ func (d *Drone) Serve (users []*user.User) {
 	d.users = append(d.users,users...)
 }
 
+func (d *Drone) SetStatus (s Status) {
+	d.status = s
+}
+
 func (d *Drone) SetRole (r Role) {
 	d.role = r
 }
 
 func (d *Drone) SetParent (p *Drone) {
 	d.parent = p
+}
+
+func (d *Drone) Reserve () {
+	d.status = Reserved
 }
 
 func (d *Drone) GetParent() *Drone {
